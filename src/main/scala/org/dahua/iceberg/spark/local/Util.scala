@@ -38,5 +38,16 @@ object Util {
     sparkSession.sql(s"insert into $db.$tb values(1, 'zs', 'dt'), (2, 'lisi', 'dt')")
   }
 
+  def insertTable(start: Int, end: Int, step: Int): Unit = {
+    val sql = StringBuilder.newBuilder
+    sql.append(s"insert into $db.$tb values")
+    for (i <- start to end by step) {
+      sql.append(s"($i, 'name_$i', 'dt_0')")
+      if (i < end) {
+        sql.append(",")
+      }
+    }
 
+    sparkSession.sql(sql.toString())
+  }
 }

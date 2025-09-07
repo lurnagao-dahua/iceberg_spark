@@ -6,10 +6,11 @@ import org.dahua.iceberg.spark.local.Util.{db, sparkSession, tb}
 
 
 object RewriteDataFiles {
-
-
-
   def main(args: Array[String]): Unit = {
+    Util.createPartitionTable()
+    Util.insertTable(1, 10, 1)
+    Util.insertTable(11, 20, 1)
+
     val table = Spark3Util.loadIcebergTable(sparkSession, s"$db.$tb")
     SparkActions
       .get()
