@@ -11,7 +11,7 @@ object Util {
   def createSparkSession(): SparkSession = {
     SparkSession
       .builder
-      .master("local[2]")
+      .master("local[1]")
       .appName("spark-iceberg test")
       .config("spark.master.ui.port", "4040")
       .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog")
@@ -24,14 +24,15 @@ object Util {
       .config("spark.sql.codegen.wholeStage", "false")
       .config("spark.sql.legacy.respectNullabilityInTextDatasetConversion", "true")
       .config("spark.default.parallelism", "1")
-      .config("spark.sql.shuffle.partitions", "1").getOrCreate
+      .config("spark.sql.shuffle.partitions", "1")
+      .getOrCreate
   }
 
   def createPartitionTable(): Unit = {
     sparkSession.sql(s"create database if not exists $db")
     sparkSession.sql(s"drop table if exists $db.$tb purge")
     sparkSession.sql(s"create table $db.$tb(id int, name string) using iceberg partitioned by(dt string)" +
-      s"tblproperties('write.merge.mode' = 'merge-on-read')")
+      s"tblproperties('write.merge.mode' = 'merge-on-read', 'write.delete.mode' = 'merge-on-read')")
   }
 
   def insertTable(): Unit = {
@@ -42,7 +43,7 @@ object Util {
     val sql = StringBuilder.newBuilder
     sql.append(s"insert into $db.$tb values")
     for (i <- start to end by step) {
-      sql.append(s"($i, 'name_$i', 'dt_0')")
+      sql.append(s"($i, 'name_$i', '1')")
       if (i < end) {
         sql.append(",")
       }
